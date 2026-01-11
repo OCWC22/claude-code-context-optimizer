@@ -1,0 +1,60 @@
+# CCv3 MCP Server - Docker Compose
+# Spin up CCv3 MCP server locally with one command
+
+services:
+  ccv3-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: ccv3-mcp
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB_NAME=${MONGODB_DB_NAME:-ccv3_hackathon}
+      - FIREWORKS_API_KEY=${FIREWORKS_API_KEY}
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+      - GALILEO_API_KEY=${GALILEO_API_KEY}
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+    # For local development with volume mount
+    volumes:
+      - .:/app:ro
+      - ccv3-data:/app/data
+    # Restart policy
+    restart: unless-stopped
+    # For HTTP transport
+    ports:
+      - "8000:8000"
+
+  # Optional: Run the API server separately
+  ccv3-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: ccv3-api
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB_NAME=${MONGODB_DB_NAME:-ccv3_hackathon}
+      - FIREWORKS_API_KEY=${FIREWORKS_API_KEY}
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+      - GALILEO_API_KEY=${GALILEO_API_KEY}
+    ports:
+      - "8001:8000"
+    command: ["uv", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+    restart: unless-stopped
+    profiles:
+      - api
+
+volumes:
+  ccv3-data:
+
+# Usage:
+#   # Build and start MCP server
+#   docker-compose -f docker-compose.mcp.yml up -d --build
+#
+#   # Start with API server too
+#   docker-compose -f docker-compose.mcp.yml --profile api up -d --build
+#
+#   # View logs
+#   docker-compose -f docker-compose.mcp.yml logs -f
+#
+#   # Stop
+#   docker-compose -f docker-compose.mcp.yml down
