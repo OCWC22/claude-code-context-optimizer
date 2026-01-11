@@ -38,7 +38,7 @@ class GalileoObserveClient:
         timeout_s: float = 30.0,
     ):
         self.api_key = api_key or os.environ.get("GALILEO_API_KEY")
-        self.api_url = (api_url or os.environ.get("GALILEO_API_URL") or "https://api.rungalileo.io/v1").rstrip(
+        self.api_url = (api_url or os.environ.get("GALILEO_API_URL") or "https://api.galileo.ai/v1").rstrip(
             "/"
         )
         self.project_name = project_name or os.environ.get("GALILEO_PROJECT_NAME") or "continuous-claude-v3-evals"
