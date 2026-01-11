@@ -97,7 +97,7 @@ class SimpleAtlas:
         results = []
         async for doc in cursor:
             results.append({
-                "file_path": doc.get("file_path"),
+                "file_path": doc.get("object_id") or doc.get("file_path", "unknown"),
                 "content": doc.get("content", "")[:500],
                 "score": 0.8  # Default score for text match
             })
@@ -325,8 +325,6 @@ Store in MongoDB Atlas: ✅"""
 
         elif name == "ccv3_sandbox_execute":
             # Execute Python code in Vercel Sandbox
-            import os
-
             vercel_configured = bool(
                 os.environ.get("VERCEL_OIDC_TOKEN") or os.environ.get("VERCEL_TOKEN") or os.environ.get("VERCEL_API_TOKEN")
             )

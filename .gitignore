@@ -1,7 +1,8 @@
-# Environment
+# Environment & Secrets
 .env
 .env.local
 .env.*.local
+.mcp.json
 
 # Python
 __pycache__/
@@ -52,7 +53,6 @@ htmlcov/
 .tox/
 
 # Build artifacts
-*.lock
 node_modules/
 
 # Temporary files

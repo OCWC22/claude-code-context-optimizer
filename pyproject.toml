@@ -1,8 +1,20 @@
 [project]
 name = "ccv3-mcp"
 version = "1.0.0"
-description = "CCv3 MCP Server - Context Engineering for Claude Code with Vercel Sandbox integration"
+description = "CCv3 MCP Server - Context Engineering for Claude Code. Achieves 76% token reduction via MongoDB Atlas Vector Search."
+readme = "README.md"
+license = {text = "MIT"}
 requires-python = ">=3.10"
+keywords = ["claude", "mcp", "context", "mongodb", "vector-search", "embeddings", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = [
     "mcp>=0.1.0",
     "httpx>=0.24.0",
@@ -17,6 +29,8 @@ dependencies = [
     "vercel",
     "tiktoken>=0.5.0",
     "pytest",
+    "anthropic>=0.75.0",
+    "rich>=13.0.0",
 ]
 
 [project.scripts]

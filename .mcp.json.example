@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ccv3": {
+      "command": "uv",
+      "args": ["run", "python", "mcp_server_standalone.py"],
+      "env": {
+        "MONGODB_URI": "mongodb+srv://user:password@cluster.mongodb.net/ccv3_hackathon",
+        "VOYAGE_API_KEY": "pa-your-voyage-api-key",
+        "FIREWORKS_API_KEY": "fw_your-fireworks-api-key",
+        "GALILEO_API_KEY": "your-galileo-api-key"
+      }
+    }
+  }
+}

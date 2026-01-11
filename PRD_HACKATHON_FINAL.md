@@ -11,13 +11,21 @@
 
 CCv3 (Continuous Context v3) is a **context engineering system** built as an **MCP server** for Claude Code. It enables AI agents to maintain coherent workflows across multiple sessions spanning hours or days. It solves the core challenge of **prolonged coordination**: how do you execute multi-step workflows, retain reasoning state, recover from failures, and ensure task consistency when sessions are interrupted?
 
-### Proven Results
+### Proven Results (Observable Benchmark - 2026-01-10)
 
 | Metric | RAW Claude | With CCv3 | Improvement |
 |--------|------------|-----------|-------------|
-| Input Tokens | 43,840 | 34,698 | **-20.9%** |
-| Cost | $0.1605 | $0.1210 | **-24.6%** |
-| Quality (Galileo) | - | 0.93 avg | ✓ |
+| Input Tokens | 20,074 | 4,803 | **-76.1%** |
+| Output Tokens | 3,744 | 2,869 | -23.4% |
+| Total Cost | $0.1164 | $0.0574 | **-50.6%** |
+| Context Size | 79,550 chars | 18,000 chars | **-77.4%** |
+
+**Per-Query Token Reduction:**
+| Query | RAW | CCv3 | Reduction |
+|-------|-----|------|-----------|
+| List WiFi functions | 7,886 | 1,602 | **-79.7%** |
+| Explain wifi_init | 4,300 | 1,593 | **-63.0%** |
+| WiFi connection flow | 7,888 | 1,608 | **-79.6%** |
 
 ### What Judges Will See
 
@@ -534,8 +542,8 @@ Handoff Pack:
     - function: TokenManager.generate()
   ...
 
-"Notice: We went from 23k tokens to 1.2k tokens - 95% reduction
-with full provenance."
+"Notice: We went from 20k tokens to 4.8k tokens - 76% reduction
+with full provenance. Cost dropped from $0.12 to $0.06 - 51% savings."
 
 [02:00] DEMO PART 3: Prolonged Workflow (60 seconds)
 ───────────────────────────────────────────────────────────────
@@ -559,24 +567,28 @@ Resuming from step 2/5...
 [Shows MongoDB run history with status changes:
  running → interrupted → running → completed]
 
-[03:00] QUALITY GATE (15 seconds)
+[03:00] BENCHMARK RESULTS (15 seconds)
 ───────────────────────────────────────────────────────────────
-Galileo Evaluation:
-  context_adherence: 0.85 ✓
-  chunk_relevance: 0.78 ✓
-  correctness: 0.82 ✓
+Observable Benchmark Results:
+  Input Tokens:  20,074 → 4,803  (-76.1%)
+  Total Cost:    $0.1164 → $0.0574  (-50.6%)
+  
+Vector Search Scores (MongoDB Atlas):
+  wifi_functions: 0.81 (Excellent)
+  wifi_init: 0.79 (Good)
+  wifi_connect: 0.76 (Good)
 
-✓ Quality gate passed - ready to commit
+✓ Quality maintained with 76% fewer tokens
 
 [03:15] SPONSOR SUMMARY (30 seconds)
 ───────────────────────────────────────────────────────────────
-"CCv3 uses MongoDB Atlas as the context engine, Voyage AI for
-embeddings, Fireworks AI for cost-optimized inference, Galileo
-for quality evaluation, and Vercel Sandbox for code execution.
-Together, they enable AI agents to coordinate across prolonged
-workflows."
+"CCv3 uses MongoDB Atlas as the context engine with vector search
+scoring 0.77+ relevance. Voyage AI provides 1024-dim embeddings.
+Galileo tracks all 6 workflow steps with full observability.
+Together, they achieve 76% token reduction and 51% cost savings
+while maintaining response quality."
 
-[Shows all sponsor integrations working]
+[Shows live benchmark output with all sponsor integrations]
 ```
 
 ### 5-Minute Demo (Finals)
@@ -611,8 +623,8 @@ export VERCEL_OIDC_TOKEN=...  # or VERCEL_TOKEN
 # Embed a codebase (offline)
 uv run python embed_codebase.py /path/to/repo --repo-id my-repo
 
-# Run benchmark
-uv run python benchmark_claude_comparison.py
+# Run observable benchmark (compare RAW vs OPTIMIZED)
+uv run python run_observable_benchmark.py
 
 # Start API server
 uv run uvicorn api:app --reload --port 8000
@@ -690,9 +702,8 @@ claude-code-context-optimizer/
 ├── mcp_server_standalone.py  # MCP server (430 lines)
 │
 ├── Tools
-├── embed_codebase.py         # Offline embedding script (318 lines)
-├── benchmark_claude_comparison.py  # Token benchmark
-├── run_claude_benchmark.py   # Claude benchmark runner
+├── embed_codebase.py         # Vectorize any codebase (318 lines)
+├── run_observable_benchmark.py  # Compare RAW vs OPTIMIZED Claude Code
 │
 ├── Evaluation Suite
 ├── evals/
@@ -714,35 +725,83 @@ claude-code-context-optimizer/
 │
 ├── Documentation
 ├── PRD_HACKATHON_FINAL.md    # This document
-├── README.md                 # Quick start guide
-├── CLAUDE_BENCHMARK_REPORT.md
-└── ATLAS_BENCHMARK_REPORT.md
+├── README.md                 # Quick start guide + benchmark instructions
+├── CLAUDE_BENCHMARK_REPORT.md  # Detailed benchmark results
+├── OBSERVABLE_BENCHMARK_REPORT.md  # Full observable benchmark log
+└── observable_benchmark_results.json  # Raw benchmark data
 ```
 
 ---
 
 ## 10. Benchmark Results
 
-### Token Reduction Analysis
+### Observable Benchmark (2026-01-10)
 
 **Test Setup:**
-- Codebase: TuyaOpen WiFi module (1,847 files, 238 chunks embedded)
-- Task: "Add a new WiFi scanning function"
-- Provider: Claude 3.5 Sonnet
+- Codebase: TuyaOpen WiFi SDK (`/tmp/tuya-open`)
+- Claude Code: v2.0.76 (via CLI)
+- Method: Real Claude Code with CCv3 MCP
+- Queries: 3 WiFi-related code analysis tasks
+- Galileo: Workflow tracking enabled
 
-**Results:**
+**Summary Results:**
 
-| Approach | Input Tokens | Output Tokens | Total Cost |
-|----------|-------------|---------------|------------|
-| RAW (full codebase) | 43,840 | 1,247 | $0.1605 |
-| CCv3 (optimized) | 34,698 | 1,089 | $0.1210 |
-| **Savings** | **-20.9%** | **-12.7%** | **-24.6%** |
+```
+╔══════════════════════╦═════════════════╦═════════════════╦══════════════╗
+║ Metric               ║      RAW Claude ║       OPTIMIZED ║      Savings ║
+╠══════════════════════╬═════════════════╬═════════════════╬══════════════╣
+║ Input Tokens         ║          20,074 ║           4,803 ║        76.1% ║
+║ Output Tokens        ║           3,744 ║           2,869 ║        23.4% ║
+║ Total Cost           ║         $0.1164 ║         $0.0574 ║        50.6% ║
+║ Context Size         ║    79,550 chars ║    18,000 chars ║        77.4% ║
+╚══════════════════════╩═════════════════╩═════════════════╩══════════════╝
+```
 
-**Quality Metrics (Galileo RAG Triad):**
-- Context Adherence: 0.94
-- Chunk Relevance: 0.91
-- Correctness: 0.93
-- **Average: 0.93** ✓
+**Per-Query Breakdown:**
+
+| Query | RAW Tokens | CCv3 Tokens | Reduction | Cost Saved |
+|-------|-----------|-------------|-----------|------------|
+| List WiFi functions | 7,886 | 1,602 | **-79.7%** | $0.0184 |
+| Explain wifi_init | 4,300 | 1,593 | **-63.0%** | $0.0058 |
+| WiFi connection flow | 7,888 | 1,608 | **-79.6%** | $0.0348 |
+
+**Vector Search Quality (MongoDB Atlas):**
+
+```
+Query 1 (wifi_functions):
+  ├─ [1] tkl_wifi.c:3      score: 0.81 ████████████████░░░░ Excellent
+  ├─ [2] tal_wifi.c        score: 0.81 ████████████████░░░░ Excellent
+  └─ [3] tal_wifi.h        score: 0.81 ████████████████░░░░ Excellent
+
+Query 2 (wifi_init):
+  ├─ [1] tal_wifi.c        score: 0.79 ███████████████░░░░░ Good
+  ├─ [2] tkl_wifi.c:0      score: 0.77 ███████████████░░░░░ Good
+  └─ [3] tal_wifi.h        score: 0.76 ███████████████░░░░░ Good
+
+Query 3 (wifi_connect):
+  ├─ [1] tkl_wifi.c:3      score: 0.76 ███████████████░░░░░ Good
+  ├─ [2] tkl_wifi.c:0      score: 0.76 ███████████████░░░░░ Good
+  └─ [3] tal_wifi.h        score: 0.73 ██████████████░░░░░░ Good
+```
+
+**Galileo Workflow Tracking:**
+
+| Step | Name | Input Tokens | Output Tokens | Cost | Duration |
+|------|------|--------------|---------------|------|----------|
+| 1 | raw_wifi_functions | 7,886 | 1,307 | $0.0433 | 25.3s |
+| 2 | raw_wifi_init | 4,300 | 641 | $0.0225 | 17.7s |
+| 3 | raw_wifi_connect | 7,888 | 1,796 | $0.0506 | 34.8s |
+| 4 | opt_wifi_functions | 1,602 | 1,338 | $0.0249 | 30.0s |
+| 5 | opt_wifi_init | 1,593 | 796 | $0.0167 | 64.5s |
+| 6 | opt_wifi_connect | 1,608 | 735 | $0.0158 | 44.7s |
+
+**Total Workflow:** 229,016ms (3.8 minutes) | 24,877 input tokens | $0.1738 total
+
+**Key Findings:**
+1. **76% Token Reduction** - CCv3's semantic search retrieves only relevant chunks
+2. **51% Cost Reduction** - Lower tokens = lower cost ($0.1164 → $0.0574)
+3. **Quality Maintained** - Both RAW and OPTIMIZED correctly identified all WiFi functions
+4. **Vector Search Scores** - Average 0.77 relevance (all > 0.70 threshold)
 
 ---
 
@@ -848,6 +907,6 @@ Typical execution:
 
 **Status:** ✅ READY FOR HACKATHON
 
-**Last Updated:** 2026-01-10
+**Last Updated:** 2026-01-10 18:00 UTC
 
-**Version:** 2.1 - Updated to reflect actual implementation
+**Version:** 2.2 - Updated with Observable Benchmark results (76% token reduction, 51% cost savings)

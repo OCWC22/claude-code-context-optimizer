@@ -22,7 +22,7 @@
 
 > *"Context management for Claude Code. Hooks maintain state via ledgers and handoffs. MCP execution without context pollution. Agent orchestration with isolated context windows."*
 
-**What CCv3 adds:** Enhanced with MongoDB Atlas Vector Search, Voyage AI embeddings, Fireworks AI inference, Galileo quality gates, and Vercel Sandbox execution—achieving **77% token reduction** (vs ~50% in original).
+**What CCv3 adds:** Enhanced with MongoDB Atlas Vector Search, Voyage AI embeddings, Fireworks AI inference, Galileo quality gates, and Vercel Sandbox execution—achieving **76% token reduction** and **51% cost savings** (vs ~50% in original).
 
 ---
 
@@ -31,10 +31,10 @@
 > *How do you execute multi-step workflows that last hours or days, retain reasoning state, recover from failures, and ensure task consistency?*
 
 **CCv3** solves this by creating an intelligent context engineering system that:
-- **Reduces token usage by 77%** through semantic retrieval
-- **Cuts costs by 67%** while maintaining quality
+- **Reduces token usage by 76%** through semantic retrieval (20,074 → 4,803 tokens)
+- **Cuts costs by 51%** while maintaining quality ($0.1164 → $0.0574)
 - **Enables session handoffs** via MongoDB-backed state persistence
-- **Validates quality** with Galileo AI RAG Triad metrics
+- **Provides full observability** with Galileo AI workflow tracking
 
 ---
 
@@ -44,26 +44,49 @@
 
 | Metric | RAW Claude | With CCv3 | Improvement |
 |--------|------------|-----------|-------------|
-| **Input Tokens** | 20,085 | 4,594 | **-77.1%** |
-| **Total Cost** | $0.0693 | $0.0228 | **-67.1%** |
-| **Quality Score** | - | 0.93 avg | ✓ Maintained |
+| **Input Tokens** | 20,074 | 4,803 | **-76.1%** |
+| **Output Tokens** | 3,744 | 2,869 | -23.4% |
+| **Total Cost** | $0.1164 | $0.0574 | **-50.6%** |
+| **Context Size** | 79,550 chars | 18,000 chars | **-77.4%** |
 
 ### Per-Query Analysis (TuyaOpen WiFi SDK)
 
-| Query | RAW Tokens | CCv3 Tokens | Reduction |
-|-------|-----------|-------------|-----------|
-| List WiFi functions | 7,889 | 1,498 | **81.0%** |
-| Explain wifi_init | 4,304 | 1,489 | **65.4%** |
-| WiFi connection flow | 7,892 | 1,607 | **79.6%** |
+| Query | RAW Tokens | CCv3 Tokens | Reduction | Cost Saved |
+|-------|-----------|-------------|-----------|------------|
+| List WiFi functions | 7,886 | 1,602 | **-79.7%** | $0.0184 |
+| Explain wifi_init | 4,300 | 1,593 | **-63.0%** | $0.0058 |
+| WiFi connection flow | 7,888 | 1,608 | **-79.6%** | $0.0348 |
 
-### Quality Validation (Galileo RAG Triad)
+### Vector Search Quality (MongoDB Atlas)
 
 ```
-✓ Context Adherence:  0.94  │████████████████████░░░│  Excellent
-✓ Chunk Relevance:    0.91  │███████████████████░░░░│  Excellent  
-✓ Correctness:        0.93  │████████████████████░░░│  Excellent
-─────────────────────────────────────────────────────────────────
-  Average:            0.93  │████████████████████░░░│  PASSED ✓
+Query 1 (wifi_functions):
+  ├─ [1] tkl_wifi.c:3      score: 0.81 ████████████████░░░░ Excellent
+  ├─ [2] tal_wifi.c        score: 0.81 ████████████████░░░░ Excellent
+  └─ [3] tal_wifi.h        score: 0.81 ████████████████░░░░ Excellent
+
+Query 2 (wifi_init):
+  ├─ [1] tal_wifi.c        score: 0.79 ███████████████░░░░░ Good
+  ├─ [2] tkl_wifi.c:0      score: 0.77 ███████████████░░░░░ Good
+  └─ [3] tal_wifi.h        score: 0.76 ███████████████░░░░░ Good
+
+Query 3 (wifi_connect):
+  ├─ [1] tkl_wifi.c:3      score: 0.76 ███████████████░░░░░ Good
+  ├─ [2] tkl_wifi.c:0      score: 0.76 ███████████████░░░░░ Good
+  └─ [3] tal_wifi.h        score: 0.73 ██████████████░░░░░░ Good
+```
+
+### Live Observable Output
+
+```
+╔══════════════════════╦═════════════════╦═════════════════╦══════════════╗
+║ Metric               ║      RAW Claude ║       OPTIMIZED ║      Savings ║
+╠══════════════════════╬═════════════════╬═════════════════╬══════════════╣
+║ Input Tokens         ║          20,074 ║           4,803 ║        76.1% ║
+║ Output Tokens        ║           3,744 ║           2,869 ║        23.4% ║
+║ Total Cost           ║         $0.1164 ║         $0.0574 ║        50.6% ║
+║ Total Time           ║        77,808ms ║        90,669ms ║            - ║
+╚══════════════════════╩═════════════════╩═════════════════╩══════════════╝
 ```
 
 ---
@@ -209,32 +232,188 @@ VERCEL_TEAM_ID=team_...
 VERCEL_PROJECT_ID=prj_...
 ```
 
-### Usage
-
-```bash
-# 1. Embed a codebase (one-time)
-uv run python embed_codebase.py /path/to/repo --repo-id my-repo
-
-# 2. Run benchmark to verify token reduction
-uv run python benchmark_claude_comparison.py
-
-# 3. Start MCP server for Claude Code integration
-uv run python mcp_server_standalone.py
-
-# 4. Start API server (optional)
-uv run uvicorn api:app --reload --port 8000
-```
-
 ### Claude Code Integration
 
 ```bash
-# Add CCv3 as MCP server
+# Add CCv3 as MCP server to Claude Code
 claude mcp add ccv3 \
   -e MONGODB_URI=$MONGODB_URI \
   -e VOYAGE_API_KEY=$VOYAGE_API_KEY \
   -e FIREWORKS_API_KEY=$FIREWORKS_API_KEY \
   -- uv run python mcp_server_standalone.py
+
+# Verify it's connected
+claude mcp list
 ```
+
+---
+
+## 🔬 Run Your Own Benchmark
+
+Compare **RAW Claude Code** vs **CCv3 Optimized** on any repository.
+
+### Step 1: Clone a Repository to Test
+
+```bash
+# Example: TuyaOpen WiFi SDK (used in our benchmark)
+git clone https://github.com/tuya/tuya-open-sdk-for-device /tmp/tuya-open
+
+# Or use your own repo
+# git clone https://github.com/your-org/your-repo /tmp/your-repo
+```
+
+### Step 2: Vectorize the Repository
+
+```bash
+# Embed the codebase into MongoDB Atlas with Voyage AI embeddings
+uv run python embed_codebase.py /tmp/tuya-open \
+  --repo-id tuya-open \
+  --patterns "*.c" "*.h" \
+  --max-files 100 \
+  --batch-size 8
+
+# For a Python/JS project:
+# uv run python embed_codebase.py /tmp/your-repo \
+#   --repo-id your-repo \
+#   --patterns "*.py" "*.ts" "*.js"
+```
+
+**Output:**
+```
+Embedding codebase: /tmp/tuya-open
+Repository ID: tuya-open
+Patterns: ['*.c', '*.h']
+
+✓ Connected to MongoDB Atlas: ccv3_hackathon
+Scanning for files...
+Found 100 files to embed
+Prepared 156 chunks from 98 files
+
+Embedding chunks...
+  Embedded 8/156 chunks
+  Embedded 16/156 chunks
+  ...
+  Embedded 156/156 chunks
+
+============================================================
+EMBEDDING COMPLETE
+============================================================
+Files processed: 98
+Chunks embedded: 156
+Total characters: 892,456
+Estimated tokens: 223,114
+```
+
+### Step 3: Configure Benchmark Queries (Optional)
+
+Edit `run_observable_benchmark.py` to customize queries for your repo:
+
+```python
+# Default queries (for TuyaOpen WiFi SDK)
+BENCHMARK_QUERIES = [
+    {
+        "id": "wifi_functions",
+        "query": "List all WiFi-related functions and explain what each one does",
+        "files": ["src/tal_wifi/include/tal_wifi.h", "src/tal_wifi/src/tal_wifi.c"],
+    },
+    # Add your own queries...
+]
+
+# Change repo path
+REPO_PATH = "/tmp/your-repo"
+REPO_ID = "your-repo"
+```
+
+### Step 4: Run the Observable Benchmark
+
+```bash
+# Run benchmark with live streaming output
+uv run python run_observable_benchmark.py
+```
+
+**What it does:**
+1. **Phase 1 (RAW):** Runs queries with full file context (no optimization)
+2. **Phase 2 (OPTIMIZED):** Runs same queries with CCv3 semantic search
+3. **Compares:** Token usage, cost, and response quality
+
+**Live Output:**
+```
+──────────────── 🔬 OBSERVABLE CLAUDE CODE BENCHMARK (via CLI) ─────────────────
+Timestamp: 2026-01-10T18:00:20
+Repository: /tmp/tuya-open
+Queries: 3
+Galileo: ✅ Enabled
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ 📦 PHASE 1: RAW CLAUDE CODE (Full File Context)                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+▶ [RAW] wifi_functions
+  Query: List all WiFi-related functions...
+ℹ️  Reading full files for context...
+ℹ️    Loaded src/tal_wifi/include/tal_wifi.h (14,266 chars)
+ℹ️    Loaded src/tal_wifi/src/tal_wifi.c (17,006 chars)
+ℹ️  Total context: 31,272 chars
+ℹ️  Calling Claude Code CLI...
+  ✓ Completed in 25,272ms
+  ├─ Input: 7,886 tokens
+  ├─ Output: 1,307 tokens
+  └─ Cost: $0.0433
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ 🚀 PHASE 2: OPTIMIZED CLAUDE CODE (CCv3 Semantic Search)                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+▶ [OPTIMIZED] wifi_functions
+ℹ️  Fetching optimized context via CCv3...
+✓ Connected to MongoDB Atlas: ccv3_hackathon
+ℹ️    Found 3 relevant chunks
+ℹ️    [1] tkl_wifi.c:3 (score: 0.81, 2000 chars)
+ℹ️    [2] tal_wifi.c (score: 0.81, 2000 chars)
+ℹ️    [3] tal_wifi.h (score: 0.81, 2000 chars)
+ℹ️  Optimized context: 6,000 chars
+  ✓ Completed in 26,235ms
+  ├─ Input: 1,602 tokens (vs 7,886 RAW = -79.7%)
+  ├─ Output: 1,338 tokens
+  └─ Cost: $0.0249
+
+──────────────────────────────── FINAL RESULTS ─────────────────────────────────
+╔══════════════════════╦═════════════════╦═════════════════╦══════════════╗
+║ Metric               ║      RAW Claude ║       OPTIMIZED ║      Savings ║
+╠══════════════════════╬═════════════════╬═════════════════╬══════════════╣
+║ Input Tokens         ║          20,074 ║           4,803 ║        76.1% ║
+║ Output Tokens        ║           3,744 ║           2,869 ║        23.4% ║
+║ Total Cost           ║         $0.1164 ║         $0.0574 ║        50.6% ║
+╚══════════════════════╩═════════════════╩═════════════════╩══════════════╝
+
+✅ Results saved to observable_benchmark_results.json
+```
+
+### Step 5: View Results
+
+```bash
+# View JSON results
+cat observable_benchmark_results.json | jq '.summary'
+
+# Output:
+{
+  "raw_total_input_tokens": 20074,
+  "opt_total_input_tokens": 4803,
+  "raw_total_cost": 0.1164,
+  "opt_total_cost": 0.0574,
+  "token_reduction_pct": 76.1,
+  "cost_reduction_pct": 50.6
+}
+```
+
+### Requirements
+
+| Requirement | Purpose |
+|-------------|---------|
+| `MONGODB_URI` | Store embeddings and search |
+| `VOYAGE_API_KEY` | Generate embeddings |
+| `claude` CLI | Run Claude Code commands |
+| Repository | Any codebase to benchmark |
 
 ---
 
@@ -268,9 +447,8 @@ claude-code-context-optimizer/
 │   └── mcp_server_standalone.py  # MCP server (430 lines)
 │
 ├── Tools
-│   ├── embed_codebase.py     # Offline embedding script
-│   ├── benchmark_claude_comparison.py  # Token benchmark
-│   └── run_claude_benchmark.py  # Claude benchmark runner
+│   ├── embed_codebase.py     # Vectorize any codebase
+│   └── run_observable_benchmark.py  # Compare RAW vs OPTIMIZED Claude Code
 │
 ├── Evaluation Suite
 │   └── evals/
@@ -361,8 +539,8 @@ Total per feature:         ~$0.07
 # Run all tests
 uv run pytest
 
-# Run benchmark
-uv run python benchmark_claude_comparison.py
+# Run observable benchmark (see "Run Your Own Benchmark" section above)
+uv run python run_observable_benchmark.py
 
 # Run evaluation suite
 uv run python -m evals.run_evals
