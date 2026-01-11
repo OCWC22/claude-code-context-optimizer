@@ -16,6 +16,16 @@
 
 ---
 
+## 🙏 Acknowledgments
+
+**CCv3** is inspired by and builds upon **[Continuous-Claude-v3](https://github.com/parcadei/Continuous-Claude-v3)** (⭐ 2.1k stars) by [@parcadei](https://github.com/parcadei).
+
+> *"Context management for Claude Code. Hooks maintain state via ledgers and handoffs. MCP execution without context pollution. Agent orchestration with isolated context windows."*
+
+**What CCv3 adds:** Enhanced with MongoDB Atlas Vector Search, Voyage AI embeddings, Fireworks AI inference, Galileo quality gates, and Vercel Sandbox execution—achieving **77% token reduction** (vs ~50% in original).
+
+---
+
 ## 🎯 Problem Statement: Prolonged Coordination
 
 > *How do you execute multi-step workflows that last hours or days, retain reasoning state, recover from failures, and ensure task consistency?*
@@ -376,47 +386,6 @@ uv run python -m evals.run_evals
 
 ---
 
-## 🙏 Acknowledgments
-
-### Based On
-
-This project is inspired by and builds upon the concepts from **[Continuous-Claude-v3](https://github.com/parcadei/Continuous-Claude-v3)** (⭐ 2.1k stars) by [@parcadei](https://github.com/parcadei).
-
-> *"Context management for Claude Code. Hooks maintain state via ledgers and handoffs. MCP execution without context pollution. Agent orchestration with isolated context windows."*
-
-Key concepts adapted from Continuous-Claude-v3:
-- **Continuity Ledgers** - Persistent state across sessions
-- **Handoff Packs** - YAML/MD context bundles for session resumption
-- **MCP Integration** - Native Claude Code tool integration
-- **Context Engineering** - Intelligent context window management
-
-### What CCv3 Adds
-
-| Feature | Continuous-Claude-v3 | CCv3 (This Project) |
-|---------|----------------------|---------------------|
-| Storage | PostgreSQL | **MongoDB Atlas** (Vector Search) |
-| Embeddings | - | **Voyage AI** (voyage-3, 1024d) |
-| Inference | - | **Fireworks AI** (minimax-m2p1) |
-| Quality Gates | - | **Galileo AI** (RAG Triad) |
-| Code Execution | Local MCP | **Vercel Sandbox** (Firecracker) |
-| Search | Text-based | **Hybrid RRF** (Text + Vector) |
-| Token Reduction | ~50% | **77%** measured |
-
-### Sponsor Technologies
-
-- **[MongoDB Atlas](https://www.mongodb.com/atlas)** - Vector storage and hybrid search
-- **[Voyage AI](https://www.voyageai.com/)** - High-quality embeddings
-- **[Fireworks AI](https://fireworks.ai/)** - Cost-optimized LLM inference
-- **[Galileo AI](https://www.rungalileo.io/)** - RAG quality evaluation
-- **[Vercel](https://vercel.com/)** - Sandbox execution and deployment
-
-### Other Inspirations
-
-- **[Anthropic](https://www.anthropic.com/)** - Claude Code and MCP protocol
-- **[uv](https://github.com/astral-sh/uv)** - Fast Python package management
-
----
-
 ## 📄 License
 
 MIT
@@ -426,8 +395,6 @@ MIT
 <div align="center">
 
 **Built for MongoDB Agentic Orchestration & Collaboration Hackathon 2026**
-
-Based on [Continuous-Claude-v3](https://github.com/parcadei/Continuous-Claude-v3) • Enhanced with MongoDB Atlas Vector Search
 
 [MongoDB Atlas](https://www.mongodb.com/atlas) • [Voyage AI](https://www.voyageai.com/) • [Fireworks AI](https://fireworks.ai/) • [Galileo AI](https://www.rungalileo.io/) • [Vercel](https://vercel.com/)
 
