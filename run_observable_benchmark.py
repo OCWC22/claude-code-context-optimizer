@@ -82,7 +82,7 @@ class GalileoObserver:
     
     def __init__(self, project_name: str = "ccv3-benchmark"):
         self.api_key = os.environ.get("GALILEO_API_KEY")
-        self.api_url = os.environ.get("GALILEO_API_URL", "https://api.rungalileo.io/v1")
+        self.api_url = os.environ.get("GALILEO_API_URL", "https://api.galileo.ai/v1")
         self.project_name = project_name
         self.steps: list[GalileoStep] = []
         self.workflow_start: float = 0.0
@@ -212,7 +212,7 @@ class GalileoObserver:
                     )
                     if resp.status_code < 300:
                         self._log(f"✅ Logged to Galileo: {self.workflow_name}", "green")
-                        self._log(f"   View: https://app.rungalileo.io/project/{self.project_name}", "dim")
+                        self._log(f"   View: https://console.galileo.ai/project/{self.project_name}", "dim")
                     else:
                         self._log(f"⚠️  Galileo API error: {resp.status_code} - {resp.text[:200]}", "yellow")
             except Exception as e:
@@ -1009,7 +1009,7 @@ async def main():
     
     # Print Galileo dashboard link
     if galileo.api_key:
-        logger.info(f"View in Galileo: https://app.rungalileo.io/project/{galileo.project_name}")
+        logger.info(f"View in Galileo: https://console.galileo.ai/project/{galileo.project_name}")
 
 
 if __name__ == "__main__":

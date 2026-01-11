@@ -4,7 +4,7 @@ Full integration with Galileo for evaluating LLM output quality
 in the context of Claude Code context management.
 
 Sponsors: Galileo AI
-Docs: https://docs.rungalileo.io/
+Docs: https://docs.galileo.ai/
 
 RAG Triad Metrics:
 1. Context Adherence (Groundedness) - Response is grounded in context
@@ -72,7 +72,7 @@ class GalileoEval:
     - Fallback to local heuristics when API unavailable
     """
 
-    API_URL = "https://api.rungalileo.io/v1"
+    API_URL = "https://api.galileo.ai/v1"
 
     def __init__(
         self,

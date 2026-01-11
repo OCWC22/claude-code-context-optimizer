@@ -26,7 +26,7 @@ class GalileoObserveClient:
 
     Env vars:
       - GALILEO_API_KEY
-      - GALILEO_API_URL (default: https://api.rungalileo.io/v1)
+      - GALILEO_API_URL (default: https://api.galileo.ai/v1)
       - GALILEO_PROJECT_NAME (default: continuous-claude-v3-evals)
     """
 
